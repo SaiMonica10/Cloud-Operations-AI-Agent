@@ -72,3 +72,6 @@ htmlcov/
 service-account*.json
 gcp-*.json
 aws-credentials
+
+# Local planning notes (not for repo)
+PLANNING.md
