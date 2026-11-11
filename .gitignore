@@ -75,3 +75,6 @@ aws-credentials
 
 # Local planning notes (not for repo)
 PLANNING.md
+
+# Runtime logs and traces
+logs/
