@@ -67,7 +67,6 @@ TOOLS = [
     },
 ]
 
-
 class ToolDispatcher:
     def __init__(self):
         self._client = httpx.Client(base_url=BASE_URL, timeout=10.0)

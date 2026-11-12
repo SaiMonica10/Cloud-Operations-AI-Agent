@@ -10,7 +10,6 @@ MAX_ITERATIONS = 10
 class AgentError(Exception):
     pass
 
-
 class Agent:
     def __init__(self):
         self.llm = LLMClient()
@@ -35,7 +34,7 @@ class Agent:
                 print(f"[Agent] Iteration {iteration} — calling LLM...")
                 tracer.log_llm_call(iteration, MODEL)
 
-                response = self.llm.call(context.messages, TOOLS)
+                response = self.llm.call(context.messages,TOOLS)
                 message = response.choices[0].message
                 context.add_assistant_message(message)
 
