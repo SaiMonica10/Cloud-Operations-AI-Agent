@@ -11,7 +11,6 @@ app.include_router(vms.router)
 app.include_router(projects.router)
 app.include_router(metrics.router)
 
-
 @app.get("/health", tags=["health"])
 def health():
     return {"status": "ok"}
