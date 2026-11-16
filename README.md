@@ -33,8 +33,9 @@ copy .env.example .env
 ```
 
 Open `.env` and set both required values:
-- `OPENROUTER_API_KEY` — your OpenRouter API key
-- `OPENROUTER_MODEL` — model to use, e.g. `nvidia/nemotron-3.5-super-vl:free`
+
+- `OPENROUTER_API_KEY`
+- `OPENROUTER_MODEL`
 
 ## Running
 
@@ -54,26 +55,6 @@ python main.py
 
 # Single question mode
 python main.py "Find all stopped VMs inactive for more than 7 days"
-```
-
-## Demo Scenarios
-
-**Scenario 1 — Stopped VMs inactive for 7+ days**
-
-```
-Find all stopped VMs in my project inactive for more than seven days
-```
-
-**Scenario 2 — VM status summary by project**
-
-```
-Give me a summary of all VM statuses in project-alpha
-```
-
-**Scenario 3 — Highest CPU usage**
-
-```
-Which VM is consuming the most CPU right now?
 ```
 
 ## Mock API Endpoints
