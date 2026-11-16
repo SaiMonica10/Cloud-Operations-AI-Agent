@@ -18,13 +18,6 @@ def list_vms(
     return result
 
 
-@router.get("/{vm_id}")
-def get_vm(vm_id: str):
-    vm = next((v for v in VMS if v["vm_id"] == vm_id), None)
-    if not vm:
-        raise HTTPException(status_code=404, detail=f"VM '{vm_id}' not found")
-    return vm
-
 
 @router.get("/{vm_id}/activity")
 def get_vm_activity(vm_id: str):

@@ -13,7 +13,9 @@ Never assume or make up infrastructure details — always call a tool to get act
 
 When you have everything you need, give a clear and concise final answer."""
 
-MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3.5-lightning:free")
+MODEL = os.getenv("OPENROUTER_MODEL")
+if not MODEL:
+    raise ValueError("OPENROUTER_MODEL is not set in .env file ")
 
 MAX_RETRIES = 3
 RETRY_WAIT_SECONDS = 15

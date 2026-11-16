@@ -28,7 +28,3 @@ class ConversationContext:
             "tool_call_id": tool_call_id,
             "content": content,
         })
-
-    def reset(self):
-        system = self.messages[0]
-        self.messages = [system]
