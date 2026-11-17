@@ -2,6 +2,10 @@
 
 An AI agent that understands natural-language requests about cloud infrastructure, calls the right APIs, and returns clear answers.
 
+## Architecture
+
+![Agent Architecture](docs/Architecture_diagram.png)
+
 ## Stack
 
 - **Python 3.10+**
