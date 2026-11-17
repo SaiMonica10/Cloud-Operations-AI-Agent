@@ -25,6 +25,10 @@ TOOLS = [
                         "type": "string",
                         "description": "Filter by project ID, e.g. 'project-alpha'.",
                     },
+                    "min_inactive_days": {
+                        "type": "integer",
+                        "description": "Only return VMs inactive for at least this many days, e.g. 7.",
+                    },
                 },
             },
         },
@@ -100,6 +104,8 @@ class ToolDispatcher:
             params["status"] = args["status"]
         if "project_id" in args:
             params["project_id"] = args["project_id"]
+        if "min_inactive_days" in args:
+            params["min_inactive_days"] = args["min_inactive_days"]
         r = self._client.get("/vms", params=params)
         r.raise_for_status()
         return r.text
