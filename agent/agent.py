@@ -34,9 +34,9 @@ class Agent:
                 print(f"[Agent] Iteration {iteration} — calling LLM...")
                 tracer.log_llm_call(iteration, MODEL)
 
-                response = self.llm.call(context.messages,TOOLS)
-                message = response.choices[0].message
-                context.add_assistant_message(message)
+                response = self.llm.call(context.messages,TOOLS) # llm is called with message + tools schema
+                message = response.choices[0].message # this message will have name of which tooto call
+                context.add_assistant_message(message) # this is added in conversation history
 
                 # LLM gave a final text answer — we're done
                 if not message.tool_calls:
@@ -51,7 +51,7 @@ class Agent:
                     raw_args = tool_call.function.arguments
                     print(f"[Agent]   → {name}({raw_args})")
 
-                    result = dispatcher.execute(name, raw_args)
+                    result = dispatcher.execute(name, raw_args) # this will take to tools.py and execute the necessary actions and take observations as results
 
                     try:
                         args_dict = json.loads(raw_args) if isinstance(raw_args, str) else raw_args
