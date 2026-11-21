@@ -12,7 +12,12 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "list_vms",
-            "description": "List VMs filtered by status (running/stopped/all) and optionally by project_id.",
+            "description": (
+                "List VM inventory: vm_id, name, project_id, status, region. "
+                "Filter by status and/or project_id. "
+                "Does NOT include activity or metrics — call get_vm_activity "
+                "or get_vm_metrics per VM for those."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -23,11 +28,7 @@ TOOLS = [
                     },
                     "project_id": {
                         "type": "string",
-                        "description": "Filter by project ID, e.g. 'project-alpha'.",
-                    },
-                    "min_inactive_days": {
-                        "type": "integer",
-                        "description": "Only return VMs inactive for at least this many days, e.g. 7.",
+                        "description": "Filter by project ID, e.g. 'project-alpha'. Use list_projects to find valid IDs.",
                     },
                 },
             },
@@ -37,7 +38,11 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_vm_activity",
-            "description": "Get the last activity timestamp and status of a specific VM.",
+            "description": (
+                "Get activity for ONE VM: last_active timestamp and days_inactive. "
+                "This is the only source of activity data — call it for each VM "
+                "when a question involves inactivity or idle time."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -51,7 +56,11 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_vm_metrics",
-            "description": "Get CPU usage and memory for a specific VM.",
+            "description": (
+                "Get resource metrics for ONE VM: cpu_usage_percent and memory_gb. "
+                "This is the only source of CPU/memory data — call it for each VM "
+                "when a question involves usage or utilization."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -65,11 +74,12 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "list_projects",
-            "description": "List all available cloud projects.",
+            "description": "List all cloud projects with their project_id, name, region and owner. Use this to map a project name (e.g. 'Project Alpha') to its project_id.",
             "parameters": {"type": "object", "properties": {}},
         },
     },
 ]
+
 
 class ToolDispatcher:
     def __init__(self):
@@ -104,8 +114,6 @@ class ToolDispatcher:
             params["status"] = args["status"]
         if "project_id" in args:
             params["project_id"] = args["project_id"]
-        if "min_inactive_days" in args:
-            params["min_inactive_days"] = args["min_inactive_days"]
         r = self._client.get("/vms", params=params)
         r.raise_for_status()
         return r.text

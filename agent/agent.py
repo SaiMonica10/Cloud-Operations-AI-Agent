@@ -4,7 +4,7 @@ from agent.llm_client import LLMClient, SYSTEM_PROMPT, MODEL
 from agent.tools import TOOLS, ToolDispatcher
 from agent.tracer import ExecutionTracer
 
-MAX_ITERATIONS = 10
+MAX_ITERATIONS = 20
 
 
 class AgentError(Exception):
