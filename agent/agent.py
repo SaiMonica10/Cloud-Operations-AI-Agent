@@ -3,7 +3,7 @@ from agent.context import ConversationContext
 from agent.llm_client import LLMClient, SYSTEM_PROMPT, MODEL
 from agent.tools import TOOLS, ToolDispatcher
 from agent.tracer import ExecutionTracer
-
+from typing import Optional
 MAX_ITERATIONS = 20
 
 
@@ -14,12 +14,19 @@ class Agent:
     def __init__(self):
         self.llm = LLMClient()
 
-    def run(self, user_input: str) -> tuple:
+    def run(self, user_input: str, context: Optional[ConversationContext] = None) -> tuple:
         """
         Run the agent on a user request.
+        Pass an existing context to continue a conversation; omit it for a one-off query.
         Returns (final_answer: str, trace_path: str).
         """
-        context = ConversationContext(SYSTEM_PROMPT)
+        if context is None:
+            context = ConversationContext(SYSTEM_PROMPT)   # single-shot mode still works
+
+        checkpoint = context.checkpoint()
+        succeeded = False
+        
+        
         tracer = ExecutionTracer()
         dispatcher = ToolDispatcher()
 
@@ -43,6 +50,7 @@ class Agent:
                     final_answer = message.content or ""
                     trace_path = tracer.save(final_answer, success=True)
                     print(f"[Agent] Finished. Trace: {trace_path}")
+                    succeeded = True
                     return final_answer, trace_path
 
                 # LLM wants to call tools — execute each one
@@ -72,4 +80,6 @@ class Agent:
             raise
 
         finally:
+            if not succeeded:
+                context.rollback(checkpoint)   # failed turn leaves no trace in history
             dispatcher.close()
