@@ -6,7 +6,11 @@ from agent.llm_client import SYSTEM_PROMPT
 
 
 def main():
-    agent = Agent()
+    try:
+        agent = Agent()
+    except ValueError as e:
+        print(f"Configuration error: {e}")
+        sys.exit(1)
 
     # Single-shot mode: python main.py "your question here"
     if len(sys.argv) > 1:
@@ -17,6 +21,8 @@ def main():
             print(f"\nTrace saved to: {trace}")
         except AgentError as e:
             print(f"\nAgent error: {e}")
+            if e.trace_path:
+                print(f"Trace saved to: {e.trace_path}")
         return
 
     # Interactive mode
@@ -50,6 +56,8 @@ def main():
             print(f"\n[Trace saved: {trace_path}]")
         except AgentError as e:
             print(f"\nError: {e}")
+            if e.trace_path:
+                print(f"[Trace saved: {e.trace_path}]")
 
 
 if __name__ == "__main__":
