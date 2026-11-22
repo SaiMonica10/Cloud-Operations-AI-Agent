@@ -1,7 +1,9 @@
 import json
 import os
 import httpx
+from typing import Optional, Tuple
 from dotenv import load_dotenv
+from agent.errors import APIUnavailableError
 
 load_dotenv()
 
@@ -85,28 +87,60 @@ class ToolDispatcher:
     def __init__(self):
         self._client = httpx.Client(base_url=BASE_URL, timeout=10.0)
 
-    def execute(self, tool_name: str, arguments: str) -> str:
+    def execute(self, tool_name: str, arguments) -> Tuple[str, Optional[str]]:
+        """
+        Run a tool. Returns (result_json, error_message).
+          - Success:            (api_response, None)
+          - Recoverable error:  ('{"error": "..."}', "...")  → the LLM sees it and can react
+        Raises APIUnavailableError if the API can't be reached at all.
+        """
         try:
-            args = json.loads(arguments) if isinstance(arguments, str) else arguments
-        except json.JSONDecodeError:
-            return json.dumps({"error": "Could not parse tool arguments as JSON"})
-
-        try:
+            args = self._parse_args(arguments)
             if tool_name == "list_vms":
-                return self._list_vms(args)
+                return self._list_vms(args), None
             elif tool_name == "get_vm_activity":
-                return self._get_vm_activity(args)
+                return self._get_vm_activity(args), None
             elif tool_name == "get_vm_metrics":
-                return self._get_vm_metrics(args)
+                return self._get_vm_metrics(args), None
             elif tool_name == "list_projects":
-                return self._list_projects()
+                return self._list_projects(), None
             else:
-                return json.dumps({"error": f"Unknown tool: '{tool_name}'"})
+                raise ValueError(f"unknown tool '{tool_name}'")
 
         except httpx.HTTPStatusError as e:
-            return json.dumps({"error": f"API returned {e.response.status_code}: {e.response.text}"})
+            msg = self._describe_http_error(e)
         except httpx.RequestError as e:
-            return json.dumps({"error": f"Could not reach mock API: {str(e)}. Is it running?"})
+            raise APIUnavailableError(
+                f"I couldn't reach the cloud API at {BASE_URL} ({type(e).__name__}). "
+                "Please check that the mock API is running and try again."
+            ) from e
+        except KeyError as e:
+            msg = f"Missing required argument {e} for tool '{tool_name}'"
+        except (ValueError, TypeError) as e:
+            msg = f"Invalid call to '{tool_name}': {e}"
+
+        return json.dumps({"error": msg}), msg
+
+    @staticmethod
+    def _parse_args(arguments) -> dict:
+        if arguments in (None, ""):
+            return {}   # some models send "" for tools with no parameters
+        args = json.loads(arguments) if isinstance(arguments, str) else arguments
+        if not isinstance(args, dict):
+            raise ValueError(f"arguments must be a JSON object, got {type(args).__name__}")
+        return args
+
+    @staticmethod
+    def _describe_http_error(e: httpx.HTTPStatusError) -> str:
+        status = e.response.status_code
+        try:
+            body = e.response.json()
+            detail = body.get("detail", body) if isinstance(body, dict) else body
+        except ValueError:
+            detail = e.response.text
+        if status == 404:
+            return f"Not found: {detail}"
+        return f"API returned {status}: {detail}"
 
     def _list_vms(self, args: dict) -> str:
         params = {}
