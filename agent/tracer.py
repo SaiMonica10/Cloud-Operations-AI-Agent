@@ -34,11 +34,12 @@ class ExecutionTracer:
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
 
-    def log_error(self, error: str):
+    def log_error(self, message: str, source: str = "agent"):
         self.steps.append({
             "step": len(self.steps) + 1,
             "type": "error",
-            "message": error,
+            "source": source,
+            "message": message,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
 

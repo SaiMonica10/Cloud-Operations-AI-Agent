@@ -28,3 +28,16 @@ class ConversationContext:
             "tool_call_id": tool_call_id,
             "content": content,
         })
+        
+    def checkpoint(self) -> int:
+        """Remember where the history is before a turn starts."""
+        return len(self.messages)
+
+    def rollback(self, checkpoint: int):
+        """Undo everything added since the checkpoint (used when a turn fails)."""
+        del self.messages[checkpoint:]
+
+    def reset(self):
+        """Clear the conversation but keep the system prompt."""
+        del self.messages[1:]
+
