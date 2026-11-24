@@ -55,6 +55,8 @@ class LLMClient:
                     tools=tools,
                     tool_choice="auto",
                 )
+                if response.usage:
+                    print(f"[LLM] tokens — prompt: {response.usage.prompt_tokens}, completion: {response.usage.completion_tokens}, total: {response.usage.total_tokens}")
                 break
             except RETRYABLE_ERRORS as e:
                 if attempt == MAX_RETRIES:
