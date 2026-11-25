@@ -24,8 +24,7 @@ class Agent:
 
         checkpoint = context.checkpoint()
         succeeded = False
-        
-        
+
         tracer = ExecutionTracer()
         dispatcher = ToolDispatcher()
 
@@ -41,6 +40,7 @@ class Agent:
                 tracer.log_llm_call(iteration, MODEL)
 
                 message = self.llm.call(context.messages, TOOLS)   # raises LLMError on bad responses
+                tracer.log_usage(self.llm.last_usage)
                 context.add_assistant_message(message)
 
                 # LLM gave a final text answer — we're done

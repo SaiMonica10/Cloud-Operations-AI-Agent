@@ -82,6 +82,7 @@ class FakeLLM:
     def __init__(self, script):
         self.script = list(script)
         self.received = []   # snapshot of the messages list for every call
+        self.last_usage = None   # same attribute the real LLMClient exposes
 
     def call(self, messages, tools):
         self.received.append(list(messages))

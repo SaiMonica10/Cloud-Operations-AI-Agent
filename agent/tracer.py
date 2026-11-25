@@ -11,9 +11,21 @@ class ExecutionTracer:
         self.start_time = time.time()
         self.steps = []
         self.user_input = ""
+        self.token_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
     def set_input(self, user_input: str):
         self.user_input = user_input
+
+    def log_usage(self, usage: dict):
+        """Attach token usage to the latest LLM call and add it to the run total."""
+        if not usage:
+            return
+        for step in reversed(self.steps):
+            if step["type"] == "llm_call":
+                step["usage"] = usage
+                break
+        for key in self.token_usage:
+            self.token_usage[key] += usage.get(key) or 0
 
     def log_llm_call(self, iteration: int, model: str):
         self.steps.append({
@@ -49,6 +61,7 @@ class ExecutionTracer:
             "user_input": self.user_input,
             "start_time": datetime.fromtimestamp(self.start_time, timezone.utc).isoformat(),
             "total_duration_ms": round((time.time() - self.start_time) * 1000),
+            "token_usage": self.token_usage,
             "steps": self.steps,
             "final_answer": final_answer,
             "success": success,
