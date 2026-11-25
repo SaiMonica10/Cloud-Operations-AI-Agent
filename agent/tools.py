@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import httpx
 from typing import Optional, Tuple
 from dotenv import load_dotenv
@@ -8,6 +9,7 @@ from agent.errors import APIUnavailableError
 load_dotenv()
 
 BASE_URL = os.getenv("MOCK_API_BASE_URL", "http://localhost:8000")
+VM_ID_PATTERN = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
 TOOLS = [
     {
@@ -152,13 +154,24 @@ class ToolDispatcher:
         r.raise_for_status()
         return r.text
 
+    @staticmethod
+    def _vm_id(args: dict) -> str:
+        """
+        vm_id comes from the LLM and goes into a URL path, so allow only plain identifiers.
+        Blocks prompt-injected values like '../projects' from reaching other endpoints.
+        """
+        vm_id = args["vm_id"]
+        if not isinstance(vm_id, str) or not VM_ID_PATTERN.fullmatch(vm_id):
+            raise ValueError(f"vm_id must be a plain identifier like 'vm-001', got {vm_id!r}")
+        return vm_id
+
     def _get_vm_activity(self, args: dict) -> str:
-        r = self._client.get(f"/vms/{args['vm_id']}/activity")
+        r = self._client.get(f"/vms/{self._vm_id(args)}/activity")
         r.raise_for_status()
         return r.text
 
     def _get_vm_metrics(self, args: dict) -> str:
-        r = self._client.get(f"/metrics/{args['vm_id']}")
+        r = self._client.get(f"/metrics/{self._vm_id(args)}")
         r.raise_for_status()
         return r.text
 

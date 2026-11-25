@@ -1,8 +1,8 @@
 import sys
-from agent.agent import Agent, AgentError
+from agent.agent import Agent
 from agent.context import ConversationContext
+from agent.errors import AgentError
 from agent.llm_client import SYSTEM_PROMPT
-
 
 
 def main():
