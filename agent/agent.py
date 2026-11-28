@@ -40,6 +40,7 @@ class Agent:
                 tracer.log_llm_call(iteration, MODEL)
 
                 message = self.llm.call(context.messages, TOOLS)   # raises LLMError on bad responses
+                # this sends full histroy ( system prompt + user question + every earlier tool call and result) + tools menu to LLM
                 tracer.log_usage(self.llm.last_usage)
                 context.add_assistant_message(message)
 
