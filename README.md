@@ -59,7 +59,14 @@ python main.py
 
 # Single question mode
 python main.py "Find all stopped VMs inactive for more than 7 days"
+
+# Web UI (Streamlit) — opens http://localhost:8501
+streamlit run app.py
 ```
+
+The web UI keeps the conversation across questions. For each answer it shows the tool calls the
+agent made, the token usage and how long it took. The sidebar shows whether the cloud API is up
+and has a "New conversation" button.
 
 ## Mock API Endpoints
 
